@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS user_roles;
 CREATE TABLE IF NOT EXISTS users (
 	user_id INT UNSIGNED NOT NULL COMMENT 'The identifier of the user',
 	user_name VARCHAR(255) NOT NULL COMMENT 'The name of the user',
-	active BOOL NOT NULL COMMENT 'Flag indicating if the user is active',
+	active BOOL DEFAULT 1 NOT NULL COMMENT 'Flag indicating if the user is active',
 	created_at DATETIME NOT NULL COMMENT 'The date and time when the record was first created',
 	created_by VARCHAR(100) NOT NULL COMMENT 'The username of whom created this record',
 	modified_at DATETIME NULL COMMENT 'The date and time when this record was lat modified',
@@ -21,7 +21,7 @@ COLLATE=utf8_general_ci ;
 CREATE TABLE IF NOT EXISTS companies (
 	company_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'The company identifier',
 	company_name VARCHAR(255) NOT NULL COMMENT 'The company name',
-	active BOOL NOT NULL COMMENT 'Flag indicating if the company is active',
+	active BOOL DEFAULT 1 NOT NULL COMMENT 'Flag indicating if the company is active',
 	created_at DATETIME NOT NULL COMMENT 'The date and time when the record was first created',
 	created_by VARCHAR(100) NOT NULL COMMENT 'The username of whom created this record',
 	modified_at DATETIME NULL COMMENT 'The date and time when this record was lat modified',
