@@ -37,6 +37,32 @@ COLLATE=utf8_general_ci ;
 -- Insert the default roles
 INSERT INTO roles (role_name, created_at, created_by) VALUES('Administrators', NOW(), 'System');
 
+-- Triggers to avoid messing default roles
+DROP TRIGGER trigger_before_delete_role;
+DROP TRIGGER trigger_before_update_role;
+
+DELIMITER //
+
+CREATE TRIGGER trigger_before_delete_role BEFORE DELETE ON roles
+FOR EACH ROW
+BEGIN
+    IF(OLD.role_name = 'Administrators') THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'The role can not be deleted';
+    END IF;
+END//
+
+CREATE TRIGGER trigger_before_update_role BEFORE UPDATE ON roles
+FOR EACH ROW
+BEGIN
+    IF(OLD.role_name = 'Administrators') THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'The role can not be deleted';
+    END IF;
+END//
+
+DELIMITER ;
+
 CREATE TABLE IF NOT EXISTS user_roles(
 	role_id TINYINT UNSIGNED NOT NULL COMMENT 'The role identifier',
 	user_id INT UNSIGNED NOT NULL COMMENT 'The identifier of the user',
