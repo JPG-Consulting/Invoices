@@ -57,3 +57,13 @@ CREATE TABLE IF NOT EXISTS user_roles(
 ENGINE=InnoDB
 DEFAULT CHARSET=utf8
 COLLATE=utf8_general_ci ;
+
+--
+-- Foreign Keys
+--
+
+ALTER TABLE roles ADD CONSTRAINT roles_companies_fk FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+ALTER TABLE user_roles ADD CONSTRAINT user_roles_companies_fk FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE user_roles ADD CONSTRAINT user_roles_roles_fk FOREIGN KEY (company_id,role_id) REFERENCES roles(company_id,role_id) ON DELETE CASCADE ON UPDATE CASCADE ;
+
