@@ -38,8 +38,8 @@ COLLATE=utf8_general_ci ;
 INSERT INTO roles (role_name, created_at, created_by) VALUES('Administrators', NOW(), 'System');
 
 -- Triggers to avoid messing default roles
-DROP TRIGGER trigger_before_delete_role;
-DROP TRIGGER trigger_before_update_role;
+DROP TRIGGER IF EXISTS trigger_before_delete_role;
+DROP TRIGGER IF EXISTS trigger_before_update_role;
 
 DELIMITER //
 
