@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS user_roles;
 CREATE TABLE IF NOT EXISTS users (
 	user_id INT UNSIGNED NOT NULL COMMENT 'The identifier of the user',
 	user_name VARCHAR(255) NOT NULL COMMENT 'The name of the user',
+	user_password CHAR(41) NOT NULL COMMENT 'The password of the user',
 	active BOOL DEFAULT 1 NOT NULL COMMENT 'Flag indicating if the user is active',
 	created_at DATETIME NOT NULL COMMENT 'The date and time when the record was first created',
 	created_by VARCHAR(100) NOT NULL COMMENT 'The username of whom created this record',
