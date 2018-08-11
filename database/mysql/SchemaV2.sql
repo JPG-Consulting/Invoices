@@ -34,6 +34,9 @@ ENGINE=InnoDB
 DEFAULT CHARSET=utf8
 COLLATE=utf8_general_ci ;
 
+-- Insert the default roles
+INSERT INTO roles (role_name, created_at, created_by) VALUES('Administrators', NOW(), 'System');
+
 CREATE TABLE IF NOT EXISTS user_roles(
 	role_id TINYINT UNSIGNED NOT NULL COMMENT 'The role identifier',
 	user_id INT UNSIGNED NOT NULL COMMENT 'The identifier of the user',
