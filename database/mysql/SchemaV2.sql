@@ -144,3 +144,38 @@ BEGIN
 END //
  
 DELIMITER ;
+
+--
+-- Change password for admins
+--
+DROP PROCEDURE IF EXISTS AdminChangePassword;
+
+DELIMITER //
+
+CREATE PROCEDURE AdminChangePassword(IN UserName VARCHAR(255), IN NewPassword VARCHAR(64), IN AdminUserName VARCHAR(255))
+BEGIN
+	DECLARE MyCounter INT UNSIGNED;
+
+	SELECT COUNT(r.role_name) INTO MyCounter FROM roles r INNER JOIN user_roles ur ON r.role_id=ur.role_id INNER JOIN users u ON u.user_id=ur.user_id WHERE u.user_name=AdminUserName AND r.role_name='Administrators';
+	IF(MyCounter <> 1) THEN 
+		SIGNAL SQLSTATE '45000' 
+		SET MESSAGE_TEXT = 'Administrator rights are required';
+	END IF;
+
+	SELECT COUNT(user_name) INTO MyCounter FROM users WHERE user_name=UserName AND user_password=PASSWORD(CONCAT(SHA1(UserName), ':', OldPassword));
+	IF(MyCounter <> 1) THEN
+		SIGNAL SQLSTATE '45000' 
+		SET MESSAGE_TEXT = 'Bad username or password';
+	END IF;
+
+	UPDATE
+		USERS
+	SET
+		user_password=PASSWORD(CONCAT(SHA1(UserName), ':', NewPassword)),
+		modified_at=NOW(),
+		modified_by=UserName
+	WHERE
+		user_name=UserName;
+END //
+
+DELIMITER ;
