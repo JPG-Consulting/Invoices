@@ -98,7 +98,7 @@ BEGIN
 		SET MESSAGE_TEXT = 'User not found';
 	END IF;
 	
-	SELECT COUNT(user_name) INTO MyCounter FROM users WHERE user_name=UserName AND user_password=PASSWORD(CONCAT(SHA1(UserName), ':', NewPassword));
+	SELECT COUNT(user_name) INTO MyCounter FROM users WHERE user_name=UserName AND user_password=PASSWORD(CONCAT(SHA1(UserName), ':', OldPassword));
 	IF(MyCounter <> 1) THEN
 		SIGNAL SQLSTATE '45000' 
 		SET MESSAGE_TEXT = 'Bad username or password';
