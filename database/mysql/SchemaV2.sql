@@ -76,3 +76,34 @@ BEGIN
 END //
  
 DELIMITER ;
+
+--
+-- Change password
+--
+
+DROP PROCEDURE IF EXISTS ChangePassword;
+
+DELIMITER //
+
+CREATE PROCEDURE ChangePassword(IN UserName VARCHAR(255), in OldPassword VARCHAR(64), IN NewPassword VARCHAR(64))
+BEGIN
+	DECLARE CountUserNames INT UNSIGNED;
+
+	SELECT COUNT(user_name) INTO CountUserNames FROM users WHERE user_name=UserName AND user_password=PASSWORD(CONCAT(SHA1(UserName), OldPassword));
+
+	IF(CountUserNames <> 1) THEN
+		SIGNAL SQLSTATE '45000' 
+		SET MESSAGE_TEXT = 'Error updating password';
+	END IF;
+	
+	UPDATE
+		USERS
+	SET
+		user_password=PASSWORD(CONCAT(SHA1(UserName), NewPassword)),
+		modified_at=NOW(),
+		modified_by=UserName
+	WHERE
+		user_name=UserName;
+END //
+ 
+DELIMITER ;
