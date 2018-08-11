@@ -48,3 +48,31 @@ COLLATE=utf8_general_ci ;
 
 ALTER TABLE user_roles ADD CONSTRAINT user_roles_roles_fk FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE ON UPDATE CASCADE ;
 
+
+--
+-- Stored Procedures
+--
+DROP PROCEDURE IF EXISTS CreateUser;
+
+DELIMITER //
+
+CREATE PROCEDURE CreateUser(IN UserName VARCHAR(255), IN UserPassword VARCHAR(64), IN AdminUserName VARCHAR(255) )
+BEGIN
+	INSERT INTO
+		USERS
+	(
+		user_name,
+		user_password,
+		created_at,
+		created_by
+	)
+	VALUES
+	(
+		UserName,
+		PASSWORD(CONCAT(SHA1(UserName), UserPassword)),
+		NOW(),
+		AdminUserName
+	);
+END //
+ 
+DELIMITER ;
