@@ -3,6 +3,7 @@ ALTER TABLE user_roles DROP FOREIGN KEY user_roles_roles_fk;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS role_tables;
 
 CREATE TABLE IF NOT EXISTS users (
 	user_id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'The identifier of the user',
@@ -72,7 +73,22 @@ ENGINE=InnoDB
 DEFAULT CHARSET=utf8
 COLLATE=utf8_general_ci ;
 
-
+CREATE TABLE role_tables (
+	role_id TINYINT UNSIGNED NOT NULL COMMENT 'The role identifier',
+	table_name varchar(100) NOT NULL COMMENT 'The table name.',
+	`select` BOOL DEFAULT 1 NOT NULL COMMENT 'Can the user execute SELECT',
+	`insert` BOOL DEFAULT 0 NOT NULL COMMENT 'Can the user execute INSERT',
+	`update` BOOL DEFAULT 0 NOT NULL COMMENT 'Can the user execute UPDATE',
+	`delete` BOOL DEFAULT 0 NOT NULL COMMENT 'Can the user execute DELETE',
+	created_at DATETIME NOT NULL COMMENT 'The date and time when the record was first created',
+	created_by VARCHAR(100) NOT NULL COMMENT 'The username of whom created this record',
+	modified_at DATETIME NULL COMMENT 'The date and time when this record was lat modified',
+	modified_by VARCHAR(100) NULL COMMENT 'The username of whom last modified this record',
+	CONSTRAINT users_pk PRIMARY KEY (user_id)
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8
+COLLATE=utf8_general_ci ;
 
 --
 -- Foreign Keys
