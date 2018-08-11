@@ -1,3 +1,5 @@
+ALTER TABLE user_roles DROP FOREIGN KEY user_roles_roles_fk;
+
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS user_roles;
