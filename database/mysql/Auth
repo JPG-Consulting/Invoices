@@ -1,0 +1,10 @@
+CREATE TABLE roles (
+  id int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The role identifier',
+  name varchar(255) NOT NULL COMMENT 'The role name',
+  parent_id int(10) unsigned DEFAULT NULL COMMENT 'The parent role identifier',
+  created_at datetime DEFAULT CURRENT_TIMESTAMP,
+  modified_at datetime ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (parent_id) REFERENCES category (id) 
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
