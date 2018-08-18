@@ -8,35 +8,36 @@ DROP TABLE IF EXISTS ref_region_types;
 CREATE TABLE IF NOT EXISTS ref_countries
 (
     `alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
-	`alpha_3` CHAR(3) NOT NULL COMMENT 'Country ISO-3166-1 alpha_3 code',
-	`name` VARCHAR(128) NOT NULL COMMENT 'Country name',
-	`numeric` SMALLINT(2) UNSIGNED NOT NULL COMMENT 'Country ISO-3166-1 numeric code',
-	`official_name` VARCHAR(128),
-	`common_name` VARCHAR(128),
-	PRIMARY KEY (`alpha_2`),
-	KEY (`alpha_3`),
-	KEY (`numeric`),
-	UNIQUE KEY(`name`)
+    `alpha_3` CHAR(3) NOT NULL COMMENT 'Country ISO-3166-1 alpha_3 code',
+    `name` VARCHAR(128) NOT NULL COMMENT 'Country name',
+    `numeric` SMALLINT(2) UNSIGNED NOT NULL COMMENT 'Country ISO-3166-1 numeric code',
+    `official_name` VARCHAR(128),
+    `common_name` VARCHAR(128),
+    PRIMARY KEY (`alpha_2`),
+    KEY (`alpha_3`),
+    KEY (`numeric`),
+    UNIQUE KEY(`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
 CREATE TABLE IF NOT EXISTS ref_regions
 (
-	`country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
-	`code` CHAR(3) NOT NULL COMMENT 'Country Subdivision ISO-3166-2 region code',
-	`name` VARCHAR(128) NOT NULL COMMENT 'The name of the region',
-	`parent_code` CHAR(3) COMMENT 'The parent region code',
-	`type_id` SMALLINT(2) UNSIGNED NOT NULL COMMENT 'The type of region',
-	PRIMARY KEY (`country_alpha_2`, `code`),
-	key (`name`),
-	key (`country_alpha_2`, `type_id`),
-	key (`type_id`)
+    `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
+    `code` CHAR(3) NOT NULL COMMENT 'Country Subdivision ISO-3166-2 region code',
+    `name` VARCHAR(128) NOT NULL COMMENT 'The name of the region',
+    `parent_code` CHAR(3) COMMENT 'The parent region code',
+    `type_id` SMALLINT(2) UNSIGNED NOT NULL COMMENT 'The type of region',
+    PRIMARY KEY (`country_alpha_2`, `code`),
+    key (`name`),
+    key (`country_alpha_2`, `type_id`),
+    key (`type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
 CREATE TABLE IF NOT EXISTS ref_region_types
 (
-	`id` SMALLINT(2) UNSIGNED NOT NULL COMMENT 'The region type id',
-	`name` VARCHAR(128) NOT NULL COMMENT 'The name of the region type',
-	PRIMARY KEY (`id`)
+    `id` SMALLINT(2) UNSIGNED NOT NULL COMMENT 'The region type id',
+    `name` VARCHAR(128) NOT NULL COMMENT 'The name of the region type',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
 
