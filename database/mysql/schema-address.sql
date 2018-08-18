@@ -5268,6 +5268,10 @@ INSERT INTO ref_regions (`country_alpha_2`, `code`, `name`, `parent_code`, `type
 ('ZW', 'MV', 'Masvingo', NULL, 3),
 ('ZW', 'MW', 'Mashonaland West', NULL, 3);
 
+INSERT INTO invoices.address_types (name, is_unique) values
+('Billing', 1),
+('Shipping', 0);
+
 ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_geo_countries_fk FOREIGN KEY (country_alpha_2) REFERENCES ref_countries(alpha_2) ON DELETE CASCADE ON UPDATE CASCADE ;
 ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_ref_region_types_fk FOREIGN KEY (type_id) REFERENCES ref_region_types(id) ON DELETE RESTRICT ON UPDATE RESTRICT ;
 
