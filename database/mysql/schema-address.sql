@@ -4,6 +4,8 @@ ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_ref_region_types_fk;
 DROP TABLE IF EXISTS ref_countries;
 DROP TABLE IF EXISTS ref_regions;
 DROP TABLE IF EXISTS ref_region_types;
+DROP TABLE IF EXISTS ref_localities;
+DROP TABLE IF EXISTS addresses;
 
 CREATE TABLE IF NOT EXISTS ref_countries
 (
@@ -40,6 +42,26 @@ CREATE TABLE IF NOT EXISTS ref_region_types
     UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
+CREATE TABLE IF NOT EXISTS ref_localities
+(
+    `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
+    `region_code` CHAR(3) NOT NULL  COMMENT 'Country Subdivision ISO-3166-2 region code',
+    `id` INT UNSIGNED NOT NULL COMMENT 'The locality (City) identifier',
+	`name` VARCHAR(128) NOT NULL COMMENT 'The name of the locality (City)',
+	PRIMARY KEY (`country_alpha_2`, `region_code`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+
+CREATE TABLE IF NOT EXISTS addresses
+(
+    `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
+	`region_code` CHAR(3) NOT NULL COMMENT 'Country Subdivision ISO-3166-2 region code',
+	`locality_id` INT UNSIGNED NOT NULL COMMENT 'The locality (City) identifier',
+	`id` BIGINT UNSIGNED NOT NULL COMMENT 'The address identifier',
+	`street_address` VARCHAR(128) NOT NULL COMMENT'The street address. For example, 1600 Amphitheatre Pkwy.',
+	`postal_code` VARCHAR(16) NOT NULL COMMENT 'The postal code. For example, 94043',
+	`post_office_box_number` VARCHAR(128) COMMENT 'The post office box number for PO box addresses',
+	PRIMARY KEY (`country_alpha_2`, `region_code`, `locality_id`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
 CREATE OR REPLACE VIEW regions AS
 SELECT r.country_alpha_2 AS country, r.code, r.name, r.parent_code AS parent, rt.name AS type FROM ref_regions r INNER JOIN ref_region_types rt ON r.type_id = rt.id;
@@ -5227,3 +5249,7 @@ INSERT INTO ref_regions (`country_alpha_2`, `code`, `name`, `parent_code`, `type
 
 ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_geo_countries_fk FOREIGN KEY (country_alpha_2) REFERENCES geo_countries(alpha_2) ON DELETE CASCADE ON UPDATE CASCADE ;
 ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_ref_region_types_fk FOREIGN KEY (type_id) REFERENCES ref_region_types(id) ON DELETE RESTRICT ON UPDATE RESTRICT ;
+
+ALTER TABLE ref_localities ADD CONSTRAINT ref_localities_ref_regions_fk FOREIGN KEY (country_alpha_2,region_code) REFERENCES ref_regions(country_alpha_2,code) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+ALTER TABLE addresses ADD CONSTRAINT addresses_ref_localities_fk FOREIGN KEY (country_alpha_2,region_code,locality_id) REFERENCES ref_localities(country_alpha_2,region_code,id) ON DELETE CASCADE ON UPDATE CASCADE ;
