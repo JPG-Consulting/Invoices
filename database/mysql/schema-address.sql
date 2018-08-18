@@ -1,5 +1,7 @@
 ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_geo_countries_fk;
 ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_ref_region_types_fk;
+ALTER TABLE ref_localities DROP CONSTRAINT ref_localities_ref_regions_fk;
+ALTER TABLE addresses DROP CONSTRAINT addresses_ref_localities_fk;
 
 DROP TABLE IF EXISTS ref_countries;
 DROP TABLE IF EXISTS ref_regions;
