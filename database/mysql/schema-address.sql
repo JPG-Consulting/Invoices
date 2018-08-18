@@ -5282,3 +5282,17 @@ ALTER TABLE ref_addresses ADD CONSTRAINT addresses_ref_localities_fk FOREIGN KEY
 ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_customers_fk FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE ON UPDATE CASCADE ;
 ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_address_types_fk FOREIGN KEY (type_id) REFERENCES address_types(id) ON DELETE CASCADE ON UPDATE CASCADE ;
 ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_ref_addresses_fk FOREIGN KEY (country_alpha_2,region_code,locality_id,address_id) REFERENCES ref_addresses(country_alpha_2,region_code,locality_id,id) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+DELIMITER //
+
+CREATE TRIGGER trigger_insert_customer_addresses BEFORE INSERT ON customer_addresses
+FOR EACH ROW
+BEGIN
+    DECLARE mycount tinyint;
+    SELECT COUNT(CA.address_id) INTO mycount FROM customer_addresses CA INNER JOIN address_types T ON T.id=CA.type_id WHERE CA.customer_id = NEW.customer_id AND CA.type_id=NEW.type_id AND T.is_unique=1;
+    IF mycount > 0 THEN
+        UPDATE customer_addresses SET country_alpha_2=NEW.country_alpha_2, region_code=NEW.region_code, locality_id=NEW.locality_id, address_id=NEW.address_id WHERE customer_id=NEW.customer_id;  
+    END IF;
+END;//
+
+DELIMITER ;
