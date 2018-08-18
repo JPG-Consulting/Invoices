@@ -5257,4 +5257,4 @@ ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_ref_region_types_fk FOREIGN K
 
 ALTER TABLE ref_localities ADD CONSTRAINT ref_localities_ref_regions_fk FOREIGN KEY (country_alpha_2,region_code) REFERENCES ref_regions(country_alpha_2,code) ON DELETE CASCADE ON UPDATE CASCADE ;
 
-ALTER TABLE addresses ADD CONSTRAINT addresses_ref_localities_fk FOREIGN KEY (country_alpha_2,region_code,locality_id) REFERENCES ref_localities(country_alpha_2,region_code,id) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE ref_addresses ADD CONSTRAINT addresses_ref_localities_fk FOREIGN KEY (country_alpha_2,region_code,locality_id) REFERENCES ref_localities(country_alpha_2,region_code,id) ON DELETE CASCADE ON UPDATE CASCADE ;
