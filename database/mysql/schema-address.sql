@@ -63,6 +63,24 @@ CREATE TABLE IF NOT EXISTS address_types (
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Types of addresses' ;
 
+CREATE TABLE IF NOT EXISTS customer_addresses (
+    `customer_id` BIGINT unsigned not null COMMENT 'Customer identifier',
+    `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
+    `region_code` CHAR(3) NOT NULL COMMENT 'Country Subdivision ISO-3166-2 region code',
+    `locality_id` INT UNSIGNED NOT NULL COMMENT 'The locality (City) identifier',
+    `address_id` BIGINT UNSIGNED NOT NULL COMMENT 'The address identifier',
+    `type_id` TINYINT NOT NULL COMMENT 'The identifier of the address type',
+    PRIMARY KEY (`customer_id`, `country_alpha_2`, `region_code`, `locality_id`, `address_id`)
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Relationship between addresses and customers' ;
+
+CREATE TABLE IF NOT EXISTS customers
+(
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'The customer identifier',
+    PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Customers table' ;
+
 CREATE OR REPLACE VIEW regions AS
 SELECT r.country_alpha_2 AS country, r.code, r.name, r.parent_code AS parent, rt.name AS type FROM ref_regions r INNER JOIN ref_region_types rt ON r.type_id = rt.id;
 
@@ -5256,3 +5274,7 @@ ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_ref_region_types_fk FOREIGN K
 ALTER TABLE ref_localities ADD CONSTRAINT ref_localities_ref_regions_fk FOREIGN KEY (country_alpha_2,region_code) REFERENCES ref_regions(country_alpha_2,code) ON DELETE CASCADE ON UPDATE CASCADE ;
 
 ALTER TABLE ref_addresses ADD CONSTRAINT addresses_ref_localities_fk FOREIGN KEY (country_alpha_2,region_code,locality_id) REFERENCES ref_localities(country_alpha_2,region_code,id) ON DELETE CASCADE ON UPDATE CASCADE ;
+
+ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_customers_fk FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_address_types_fk FOREIGN KEY (type_id) REFERENCES address_types(id) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_ref_addresses_fk FOREIGN KEY (country_alpha_2,region_code,locality_id,address_id) REFERENCES ref_addresses(country_alpha_2,region_code,locality_id,id) ON DELETE CASCADE ON UPDATE CASCADE ;
