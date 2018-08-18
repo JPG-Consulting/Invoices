@@ -1,14 +1,3 @@
-ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_geo_countries_fk;
-ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_ref_region_types_fk;
-ALTER TABLE ref_localities DROP CONSTRAINT ref_localities_ref_regions_fk;
-ALTER TABLE addresses DROP CONSTRAINT addresses_ref_localities_fk;
-
-DROP TABLE IF EXISTS ref_countries;
-DROP TABLE IF EXISTS ref_regions;
-DROP TABLE IF EXISTS ref_region_types;
-DROP TABLE IF EXISTS ref_localities;
-DROP TABLE IF EXISTS ref_addresses;
-
 CREATE TABLE IF NOT EXISTS ref_countries
 (
     `alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
@@ -21,7 +10,7 @@ CREATE TABLE IF NOT EXISTS ref_countries
     KEY (`alpha_3`),
     KEY (`numeric`),
     UNIQUE KEY(`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='ISO-3166-1 Country codes' ;
 
 CREATE TABLE IF NOT EXISTS ref_regions
 (
@@ -34,7 +23,7 @@ CREATE TABLE IF NOT EXISTS ref_regions
     key (`name`),
     key (`country_alpha_2`, `type_id`),
     key (`type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='ISO-3166-2 country subdivision codes';
 
 CREATE TABLE IF NOT EXISTS ref_region_types
 (
@@ -42,7 +31,7 @@ CREATE TABLE IF NOT EXISTS ref_region_types
     `name` VARCHAR(128) NOT NULL COMMENT 'The name of the region type',
     PRIMARY KEY (`id`),
     UNIQUE KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='ISO-3166-2 country subdivision type codes';
 
 CREATE TABLE IF NOT EXISTS ref_localities
 (
@@ -51,7 +40,7 @@ CREATE TABLE IF NOT EXISTS ref_localities
     `id` INT UNSIGNED NOT NULL COMMENT 'The locality (City) identifier',
     `name` VARCHAR(128) NOT NULL COMMENT 'The name of the locality (City)',
     PRIMARY KEY (`country_alpha_2`, `region_code`, `id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Localities (AKA Cities)';
 
 CREATE TABLE IF NOT EXISTS ref_addresses
 (
@@ -63,7 +52,16 @@ CREATE TABLE IF NOT EXISTS ref_addresses
     `postal_code` VARCHAR(16) NOT NULL COMMENT 'The postal code. For example, 94043',
     `post_office_box_number` VARCHAR(128) COMMENT 'The post office box number for PO box addresses',
     PRIMARY KEY (`country_alpha_2`, `region_code`, `locality_id`, `id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Addresses table' ;
+
+CREATE TABLE IF NOT EXISTS address_types (
+	id TINYINT NOT NULL AUTO_INCREMENT COMMENT 'The identifier of the address type',
+	name varchar(100) NOT NULL COMMENT 'The name of the address type',
+	is_unique BOOL DEFAULT 0 NOT NULL COMMENT 'Flag to mark this type as unique for the relationship',
+	PRIMARY KEY (`id`),
+	UNIQUE KEY (`name`)
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Types of addresses' ;
 
 CREATE OR REPLACE VIEW regions AS
 SELECT r.country_alpha_2 AS country, r.code, r.name, r.parent_code AS parent, rt.name AS type FROM ref_regions r INNER JOIN ref_region_types rt ON r.type_id = rt.id;
