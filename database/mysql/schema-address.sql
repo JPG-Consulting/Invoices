@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS address_types (
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Types of addresses' ;
 
 CREATE TABLE IF NOT EXISTS customer_addresses (
-    `customer_id` BIGINT unsigned not null COMMENT 'Customer identifier',
+    `customer_id` BIGINT UNSIGNED NOT NULL COMMENT 'Customer identifier',
     `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
     `region_code` CHAR(3) NOT NULL COMMENT 'Country Subdivision ISO-3166-2 region code',
     `locality_id` INT UNSIGNED NOT NULL COMMENT 'The locality (City) identifier',
@@ -76,7 +76,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Relationship
 
 CREATE TABLE IF NOT EXISTS customers
 (
-    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'The customer identifier',
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'The customer identifier',
     PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Customers table' ;
