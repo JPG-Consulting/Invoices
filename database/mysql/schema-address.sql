@@ -69,7 +69,7 @@ CREATE OR REPLACE VIEW regions AS
 SELECT r.country_alpha_2 AS country, r.code, r.name, r.parent_code AS parent, rt.name AS type FROM ref_regions r INNER JOIN ref_region_types rt ON r.type_id = rt.id;
 
 CREATE OR REPLACE VIEW addresses AS
-SELECT A.country_alpha_2, A.region_code, A.locality_id, A.id AS address_id, A.street_address, A.post_office_box_number, L.name AS locality, A.postal_code, R.name AS region, C.name AS country FROM addresses A INNER JOIN ref_localities L ON A.country_alpha_2=L.country_alpha_2 AND A.region_code = L.region_code AND A.locality_id=L.id INNER JOIN ref_regions R ON A.country_alpha_2=R.country_alpha_2 AND A.region_code=R.code INNER JOIN ref_countries C ON A.country_alpha_2=C.alpha_2;
+SELECT A.country_alpha_2, A.region_code, A.locality_id, A.id AS address_id, A.street_address, A.post_office_box_number, L.name AS locality, A.postal_code, R.name AS region, C.name AS country FROM ref_addresses A INNER JOIN ref_localities L ON A.country_alpha_2=L.country_alpha_2 AND A.region_code = L.region_code AND A.locality_id=L.id INNER JOIN ref_regions R ON A.country_alpha_2=R.country_alpha_2 AND A.region_code=R.code INNER JOIN ref_countries C ON A.country_alpha_2=C.alpha_2;
 
 INSERT INTO ref_countries (`alpha_2`, `alpha_3`, `name`, `numeric`, `official_name`, `common_name`) VALUES
 ('AW', 'ABW', 'Aruba', 533, NULL, NULL),
