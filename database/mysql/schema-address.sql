@@ -1,3 +1,7 @@
+
+ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_geo_countries_fk;
+ALTER TABLE ref_regions DROP CONSTRAINT ref_regions_ref_region_types_fk;
+
 DROP TABLE IF EXISTS ref_countries;
 DROP TABLE IF EXISTS ref_regions;
 DROP TABLE IF EXISTS ref_region_types;
@@ -5219,3 +5223,6 @@ INSERT INTO ref_regions (`country_alpha_2`, `code`, `name`, `parent_code`, `type
 ('ZW', 'MS', 'Matabeleland South', NULL, 3),
 ('ZW', 'MV', 'Masvingo', NULL, 3),
 ('ZW', 'MW', 'Mashonaland West', NULL, 3);
+
+ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_geo_countries_fk FOREIGN KEY (country_alpha_2) REFERENCES geo_countries(alpha_2) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_ref_region_types_fk FOREIGN KEY (`type`) REFERENCES ref_region_types(id) ON DELETE RESTRICT ON UPDATE RESTRICT ;
