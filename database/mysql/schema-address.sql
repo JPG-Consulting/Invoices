@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS ref_region_types
     UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='ISO-3166-2 country subdivision type codes';
 
-CREATE TABLE IF NOT EXISTS ref_localities
+CREATE TABLE IF NOT EXISTS cities
 (
     `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
     `region_code` CHAR(3) NOT NULL  COMMENT 'Country Subdivision ISO-3166-2 region code',
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS ref_localities
     PRIMARY KEY (`country_alpha_2`, `region_code`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Localities (AKA Cities)';
 
-CREATE TABLE IF NOT EXISTS ref_addresses
+CREATE TABLE IF NOT EXISTS addresses
 (
     `country_alpha_2` CHAR(2) NOT NULL COMMENT 'Country ISO-3166-1 alpha_2 code',
     `region_code` CHAR(3) NOT NULL COMMENT 'Country Subdivision ISO-3166-2 region code',
@@ -54,10 +54,10 @@ CREATE TABLE IF NOT EXISTS ref_addresses
     PRIMARY KEY (`country_alpha_2`, `region_code`, `locality_id`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Addresses table' ;
 
-CREATE TABLE IF NOT EXISTS address_types (
-	id TINYINT NOT NULL AUTO_INCREMENT COMMENT 'The identifier of the address type',
-	name varchar(100) NOT NULL COMMENT 'The name of the address type',
-	is_unique BOOL DEFAULT 0 NOT NULL COMMENT 'Flag to mark this type as unique for the relationship',
+CREATE TABLE IF NOT EXISTS ref_address_types (
+	`id` SMALLINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'The identifier of the address type',
+	`name` varchar(100) NOT NULL COMMENT 'The name of the address type',
+	`is_unique` BOOL DEFAULT 0 NOT NULL COMMENT 'Flag to mark this type as unique for the relationship',
 	PRIMARY KEY (`id`),
 	UNIQUE KEY (`name`)
 )
@@ -81,11 +81,11 @@ CREATE TABLE IF NOT EXISTS customers
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Customers table' ;
 
-CREATE OR REPLACE VIEW regions AS
+CREATE OR REPLACE VIEW view_regions AS
 SELECT r.country_alpha_2 AS country, r.code, r.name, r.parent_code AS parent, rt.name AS type FROM ref_regions r INNER JOIN ref_region_types rt ON r.type_id = rt.id;
 
-CREATE OR REPLACE VIEW addresses AS
-SELECT A.country_alpha_2, A.region_code, A.locality_id, A.id AS address_id, A.street_address, A.post_office_box_number, L.name AS locality, A.postal_code, R.name AS region, C.name AS country FROM ref_addresses A INNER JOIN ref_localities L ON A.country_alpha_2=L.country_alpha_2 AND A.region_code = L.region_code AND A.locality_id=L.id INNER JOIN ref_regions R ON A.country_alpha_2=R.country_alpha_2 AND A.region_code=R.code INNER JOIN ref_countries C ON A.country_alpha_2=C.alpha_2;
+CREATE OR REPLACE VIEW view_addresses AS
+SELECT A.country_alpha_2, A.region_code, A.locality_id, A.id AS address_id, A.street_address, A.post_office_box_number, CI.name AS city, A.postal_code, R.name AS region, C.name AS country FROM addresses A INNER JOIN cities CI ON A.country_alpha_2=CI.country_alpha_2 AND A.region_code = CI.region_code AND A.locality_id=CI.id INNER JOIN ref_regions R ON A.country_alpha_2=R.country_alpha_2 AND A.region_code=R.code INNER JOIN ref_countries C ON A.country_alpha_2=C.alpha_2;
 
 INSERT INTO ref_countries (`alpha_2`, `alpha_3`, `name`, `numeric`, `official_name`, `common_name`) VALUES
 ('AW', 'ABW', 'Aruba', 533, NULL, NULL),
@@ -5268,20 +5268,20 @@ INSERT INTO ref_regions (`country_alpha_2`, `code`, `name`, `parent_code`, `type
 ('ZW', 'MV', 'Masvingo', NULL, 3),
 ('ZW', 'MW', 'Mashonaland West', NULL, 3);
 
-INSERT INTO invoices.address_types (name, is_unique) values
+INSERT INTO ref_address_types (`name`, `is_unique`) VALUES
 ('Billing', 1),
 ('Shipping', 0);
 
 ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_geo_countries_fk FOREIGN KEY (country_alpha_2) REFERENCES ref_countries(alpha_2) ON DELETE CASCADE ON UPDATE CASCADE ;
 ALTER TABLE ref_regions ADD CONSTRAINT ref_regions_ref_region_types_fk FOREIGN KEY (type_id) REFERENCES ref_region_types(id) ON DELETE RESTRICT ON UPDATE RESTRICT ;
 
-ALTER TABLE ref_localities ADD CONSTRAINT ref_localities_ref_regions_fk FOREIGN KEY (country_alpha_2,region_code) REFERENCES ref_regions(country_alpha_2,code) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE cities ADD CONSTRAINT cities_ref_regions_fk FOREIGN KEY (country_alpha_2,region_code) REFERENCES ref_regions(country_alpha_2,code) ON DELETE CASCADE ON UPDATE CASCADE ;
 
-ALTER TABLE ref_addresses ADD CONSTRAINT addresses_ref_localities_fk FOREIGN KEY (country_alpha_2,region_code,locality_id) REFERENCES ref_localities(country_alpha_2,region_code,id) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE addresses ADD CONSTRAINT addresses_cities_fk FOREIGN KEY (country_alpha_2,region_code,locality_id) REFERENCES cities(country_alpha_2,region_code,id) ON DELETE CASCADE ON UPDATE CASCADE ;
 
+ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_ref_address_types_fk FOREIGN KEY (type_id) REFERENCES ref_address_types(id) ON DELETE CASCADE ON UPDATE CASCADE ;
+ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_addresses_fk FOREIGN KEY (country_alpha_2,region_code,locality_id,address_id) REFERENCES addresses(country_alpha_2,region_code,locality_id,id) ON DELETE CASCADE ON UPDATE CASCADE ;
 ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_customers_fk FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE ON UPDATE CASCADE ;
-ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_address_types_fk FOREIGN KEY (type_id) REFERENCES address_types(id) ON DELETE CASCADE ON UPDATE CASCADE ;
-ALTER TABLE customer_addresses ADD CONSTRAINT customer_addresses_ref_addresses_fk FOREIGN KEY (country_alpha_2,region_code,locality_id,address_id) REFERENCES ref_addresses(country_alpha_2,region_code,locality_id,id) ON DELETE CASCADE ON UPDATE CASCADE ;
 
 DELIMITER //
 
@@ -5289,7 +5289,7 @@ CREATE TRIGGER trigger_insert_customer_addresses BEFORE INSERT ON customer_addre
 FOR EACH ROW
 BEGIN
     DECLARE mycount tinyint;
-    SELECT COUNT(CA.address_id) INTO mycount FROM customer_addresses CA INNER JOIN address_types T ON T.id=CA.type_id WHERE CA.customer_id = NEW.customer_id AND CA.type_id=NEW.type_id AND T.is_unique=1;
+    SELECT COUNT(CA.address_id) INTO mycount FROM customer_addresses CA INNER JOIN ref_address_types T ON T.id=CA.type_id WHERE CA.customer_id = NEW.customer_id AND CA.type_id=NEW.type_id AND T.is_unique=1;
     IF mycount > 0 THEN
         UPDATE customer_addresses SET country_alpha_2=NEW.country_alpha_2, region_code=NEW.region_code, locality_id=NEW.locality_id, address_id=NEW.address_id WHERE customer_id=NEW.customer_id;  
     END IF;
